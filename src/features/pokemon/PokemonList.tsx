@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { usePokemonList } from "../../hooks/pokemonList";
-import { useDebounce } from "../../hooks/debounce";
-
+import { usePokemonList } from "../../hooks/usePokemonList";
+import { useDebounce } from "../../hooks/useDebounce";
+import { PokemonCard } from "../../components/PokemonCard";
 
 export function PokemonList() {
-    const { data, isLoading } = usePokemonList();
+    const { data, isLoading, isError } = usePokemonList();
     const [search, setSearch] = useState("");
 
     const debouncedSearch = useDebounce(search, 300);
 
     if (isLoading) return <div>Loading...</div>;
+    if (isError) return <div>Error loading data</div>;
 
     const filtered = data?.filter((p: any) =>
         p.name.toLowerCase().includes(debouncedSearch.toLowerCase())
@@ -24,7 +25,7 @@ export function PokemonList() {
             />
 
             {filtered?.map((pokemon: any) => (
-                <div key={pokemon.name}>{pokemon.name}</div>
+                <PokemonCard key={pokemon.name} name={pokemon.name} />
             ))}
         </div>
     );

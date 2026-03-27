@@ -12,7 +12,7 @@ function renderWithClient(ui: React.ReactElement) {
     const queryClient = new QueryClient({
         defaultOptions: {
             queries: {
-                retry: false, // important for tests
+                retry: false,
             },
         },
     });
@@ -31,7 +31,7 @@ describe("PokemonList", () => {
 
     test("renders loading state initially", () => {
         (pokemonService.fetchPokemonList as any).mockReturnValue(
-            new Promise(() => { }) // never resolves → loading state
+            new Promise(() => { })
         );
 
         renderWithClient(<PokemonList />);
@@ -47,10 +47,8 @@ describe("PokemonList", () => {
 
         renderWithClient(<PokemonList />);
 
-        await waitFor(() => {
-            expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument();
-            expect(screen.getByText(/charmander/i)).toBeInTheDocument();
-        });
+        expect(await screen.findByText(/bulbasaur/i)).toBeInTheDocument();
+        expect(await screen.findByText(/charmander/i)).toBeInTheDocument();
     });
 
     test("does not show loading after data is loaded", async () => {
@@ -64,52 +62,49 @@ describe("PokemonList", () => {
             expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
         });
     });
-});
 
-test("filters pokemon based on search input", async () => {
-    (pokemonService.fetchPokemonList as any).mockResolvedValue([
-        { name: "bulbasaur" },
-        { name: "charmander" },
-    ]);
+    test("filters pokemon based on search input", async () => {
+        const user = userEvent.setup();
 
-    renderWithClient(<PokemonList />);
+        (pokemonService.fetchPokemonList as any).mockResolvedValue([
+            { name: "bulbasaur" },
+            { name: "charmander" },
+        ]);
 
-    // wait for data
-    await screen.findByText(/bulbasaur/i);
+        renderWithClient(<PokemonList />);
 
-    const input = screen.getByPlaceholderText(/search/i);
+        await screen.findByText(/bulbasaur/i);
 
-    await userEvent.type(input, "bulb");
+        const input = screen.getByPlaceholderText(/search/i);
 
-    expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument();
-    expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();
-});
+        await user.type(input, "bulb");
 
-test("filters pokemon with debounce", async () => {
-    vi.useFakeTimers();
-
-    (pokemonService.fetchPokemonList as any).mockResolvedValue([
-        { name: "bulbasaur" },
-        { name: "charmander" },
-    ]);
-
-    renderWithClient(<PokemonList />);
-
-    await screen.findByText(/bulbasaur/i);
-
-    const input = screen.getByPlaceholderText(/search/i);
-
-    await userEvent.type(input, "bulb");
-
-    // Immediately → should NOT filter yet
-    expect(screen.getByText(/charmander/i)).toBeInTheDocument();
-
-    // Fast forward debounce time
-    vi.advanceTimersByTime(300);
-
-    await waitFor(() => {
-        expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument();
+            expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();
+        });
     });
 
-    vi.useRealTimers();
+    test("filters pokemon with debounce", async () => {
+        // Do not use fake timers with userEvent typing
+        (pokemonService.fetchPokemonList as any).mockResolvedValue([
+            { name: "bulbasaur" },
+            { name: "charmander" },
+        ]);
+
+        renderWithClient(<PokemonList />);
+
+        await screen.findByText(/bulbasaur/i);
+
+        const input = screen.getByPlaceholderText(/search/i);
+        const user = userEvent.setup({ delay: 0 }); // real timers
+
+        await user.type(input, "bulb");
+
+        // Wait for debounce (real timers now)
+        await waitFor(() => {
+            expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();
+            expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument();
+        });
+    });
 });

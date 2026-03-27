@@ -1,14 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import { PokemonList } from "../features/pokemon/PokemonList";
+import { PokemonDetail } from "../features/pokemon/PokemonDetail";
 
-const Home = () => <h1>Pokemon List Page</h1>;
-const Detail = () => <h1>Pokemon Detail Page</h1>;
-
-export default function AppRoutes() {
+export function AppRoutes() {
     return (
         <Routes>
             <Route path="/" element={<PokemonList />} />
-            <Route path="/pokemon/:name" element={<Detail />} />
+            <Route path="/pokemon/:name" element={<PokemonDetail />} />
         </Routes>
     );
 }
