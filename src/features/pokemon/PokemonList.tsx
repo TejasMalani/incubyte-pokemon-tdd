@@ -1,3 +1,7 @@
 export function PokemonList() {
-    return <div>Loading...</div>;
+    const isLoading = false;
+
+    if (isLoading) return <div>Loading...</div>;
+
+    return <div>Pokemon List</div>;
 }
