@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import { PokemonList } from "./PokemonList";
 import * as pokemonService from "../../services/pokemonService";
+import userEvent from "@testing-library/user-event";
 
 // 🔁 Mock API
 vi.mock("../../services/pokemonService");
@@ -63,4 +64,23 @@ describe("PokemonList", () => {
             expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
         });
     });
+});
+
+test("filters pokemon based on search input", async () => {
+    (pokemonService.fetchPokemonList as any).mockResolvedValue([
+        { name: "bulbasaur" },
+        { name: "charmander" },
+    ]);
+
+    renderWithClient(<PokemonList />);
+
+    // wait for data
+    await screen.findByText(/bulbasaur/i);
+
+    const input = screen.getByPlaceholderText(/search/i);
+
+    await userEvent.type(input, "bulb");
+
+    expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument();
+    expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();
 });
