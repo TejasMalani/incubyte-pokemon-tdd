@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { test, expect } from 'vitest'
+import { test, expect } from "vitest";
 import App from "./App";
 
-test("renders app title", () => {
+test("renders pokemon list page", () => {
     render(<App />);
-    expect(screen.getByText(/Pokemon App/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pokemon List Page/i)).toBeInTheDocument();
 });

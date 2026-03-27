@@ -1,5 +1,12 @@
+import AppRoutes from "./routes/AppRoutes";
+import { BrowserRouter } from "react-router-dom";
+
 function App() {
-  return <h1>Pokemon App</h1>;
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
 }
 
 export default App;
