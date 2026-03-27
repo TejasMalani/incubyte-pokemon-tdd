@@ -84,3 +84,32 @@ test("filters pokemon based on search input", async () => {
     expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument();
     expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();
 });
+
+test("filters pokemon with debounce", async () => {
+    vi.useFakeTimers();
+
+    (pokemonService.fetchPokemonList as any).mockResolvedValue([
+        { name: "bulbasaur" },
+        { name: "charmander" },
+    ]);
+
+    renderWithClient(<PokemonList />);
+
+    await screen.findByText(/bulbasaur/i);
+
+    const input = screen.getByPlaceholderText(/search/i);
+
+    await userEvent.type(input, "bulb");
+
+    // Immediately → should NOT filter yet
+    expect(screen.getByText(/charmander/i)).toBeInTheDocument();
+
+    // Fast forward debounce time
+    vi.advanceTimersByTime(300);
+
+    await waitFor(() => {
+        expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();
+    });
+
+    vi.useRealTimers();
+});
