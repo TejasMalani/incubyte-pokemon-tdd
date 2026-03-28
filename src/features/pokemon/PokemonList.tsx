@@ -9,8 +9,8 @@ export function PokemonList() {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading data</div>;
+  if (isLoading) return <div className="flex justify-center">Loading...</div>;
+  if (isError) return <div className="flex justify-center">Error loading data</div>;
 
   const filtered = data?.filter((p: any) =>
     p.name.toLowerCase().includes(debouncedSearch.toLowerCase()),

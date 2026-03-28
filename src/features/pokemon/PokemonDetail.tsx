@@ -18,8 +18,9 @@ export function PokemonDetail() {
     fairy: "bg-pink-100 text-pink-700 border-pink-300",
   };
 
-  if (isLoading) return <div className="p-4">Loading...</div>;
-  if (isError) return <div className="p-4">Error loading data</div>;
+  if (isLoading) return <div className="flex justify-center">Loading...</div>;
+  if (isError)
+    return <div className="flex justify-center">Error loading data</div>;
 
   const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${data.id}.png`;
 
